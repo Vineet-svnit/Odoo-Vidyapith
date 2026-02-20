@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,44 +7,145 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User and Authentication
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  passwordHash  String
-  role          Role
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  invitedBy     String?
-  inviter       User?     @relation("UserInvites", fields: [invitedBy], references: [id])
-  invitees      User[]    @relation("UserInvites")
-  driver        Driver?
-  auditLogs     AuditLog[]
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  invitedBy    String?
+  auditLogs    AuditLog[]
+  driver       Driver?
+  inviter      User?      @relation("UserInvites", fields: [invitedBy], references: [id])
+  invitees     User[]     @relation("UserInvites")
+}
+
+model Vehicle {
+  id              String           @id @default(cuid())
+  name            String
+  model           String
+  licensePlate    String           @unique
+  type            VehicleType
+  maxLoadCapacity Float
+  odometer        Float
+  status          VehicleStatus    @default(AVAILABLE)
+  acquisitionCost Float?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  expenses        Expense[]
+  fuelLogs        FuelLog[]
+  maintenanceLogs MaintenanceLog[]
+  trips           Trip[]
+}
+
+model Driver {
+  id              String       @id @default(cuid())
+  userId          String       @unique
+  firstName       String
+  lastName        String
+  licenseNumber   String       @unique
+  licenseCategory String
+  licenseExpiry   DateTime
+  status          DriverStatus @default(ON_DUTY)
+  safetyScore     Float?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  user            User         @relation(fields: [userId], references: [id])
+  trips           Trip[]
+}
+
+model Trip {
+  id               String     @id @default(cuid())
+  vehicleId        String
+  driverId         String
+  cargoWeight      Float
+  cargoDescription String?
+  origin           String
+  destination      String
+  status           TripStatus @default(DRAFT)
+  startOdometer    Float?
+  endOdometer      Float?
+  scheduledStart   DateTime?
+  actualStart      DateTime?
+  actualEnd        DateTime?
+  issueReported    Boolean    @default(false)
+  issueDescription String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  createdBy        String
+  expenses         Expense[]
+  driver           Driver     @relation(fields: [driverId], references: [id])
+  vehicle          Vehicle    @relation(fields: [vehicleId], references: [id])
+}
+
+model MaintenanceLog {
+  id          String    @id @default(cuid())
+  vehicleId   String
+  serviceType String
+  description String?
+  cost        Float
+  odometer    Float
+  serviceDate DateTime
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   String
+  vehicle     Vehicle   @relation(fields: [vehicleId], references: [id])
+}
+
+model FuelLog {
+  id            String   @id @default(cuid())
+  vehicleId     String
+  liters        Float
+  cost          Float
+  pricePerLiter Float
+  odometer      Float
+  fuelDate      DateTime
+  createdAt     DateTime @default(now())
+  createdBy     String
+  vehicle       Vehicle  @relation(fields: [vehicleId], references: [id])
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  vehicleId   String?
+  tripId      String?
+  category    String
+  description String?
+  amount      Float
+  expenseDate DateTime
+  createdAt   DateTime @default(now())
+  createdBy   String
+  trip        Trip?    @relation(fields: [tripId], references: [id])
+  vehicle     Vehicle? @relation(fields: [vehicleId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  resource   String
+  resourceId String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  message   String
+  metadata  Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 enum Role {
   FLEET_MANAGER
   DISPATCHER
   DRIVER
-}
-
-// Vehicle Management
-model Vehicle {
-  id                String          @id @default(cuid())
-  name              String
-  model             String
-  licensePlate      String          @unique
-  type              VehicleType
-  maxLoadCapacity   Float
-  odometer          Float
-  status            VehicleStatus   @default(AVAILABLE)
-  acquisitionCost   Float?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  trips             Trip[]
-  maintenanceLogs   MaintenanceLog[]
-  fuelLogs          FuelLog[]
-  expenses          Expense[]
 }
 
 enum VehicleType {
@@ -63,52 +161,10 @@ enum VehicleStatus {
   OUT_OF_SERVICE
 }
 
-// Driver Management
-model Driver {
-  id                String        @id @default(cuid())
-  userId            String        @unique
-  user              User          @relation(fields: [userId], references: [id])
-  firstName         String
-  lastName          String
-  licenseNumber     String        @unique
-  licenseCategory   String
-  licenseExpiry     DateTime
-  status            DriverStatus  @default(ON_DUTY)
-  safetyScore       Float?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  trips             Trip[]
-}
-
 enum DriverStatus {
   ON_DUTY
   OFF_DUTY
   SUSPENDED
-}
-
-// Trip Management
-model Trip {
-  id                String      @id @default(cuid())
-  vehicleId         String
-  vehicle           Vehicle     @relation(fields: [vehicleId], references: [id])
-  driverId          String
-  driver            Driver      @relation(fields: [driverId], references: [id])
-  cargoWeight       Float
-  cargoDescription  String?
-  origin            String
-  destination       String
-  status            TripStatus  @default(DRAFT)
-  startOdometer     Float?
-  endOdometer       Float?
-  scheduledStart    DateTime?
-  actualStart       DateTime?
-  actualEnd         DateTime?
-  issueReported     Boolean     @default(false)
-  issueDescription  String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  createdBy         String
-  expenses          Expense[]
 }
 
 enum TripStatus {
@@ -120,68 +176,22 @@ enum TripStatus {
   ISSUE_REPORTED
 }
 
-// Maintenance Management
-model MaintenanceLog {
-  id            String    @id @default(cuid())
-  vehicleId     String
-  vehicle       Vehicle   @relation(fields: [vehicleId], references: [id])
-  serviceType   String
-  description   String?
-  cost          Float
-  odometer      Float
-  serviceDate   DateTime
-  completedAt   DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  createdBy     String
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
-// Financial Management
-model FuelLog {
-  id          String    @id @default(cuid())
-  vehicleId   String
-  vehicle     Vehicle   @relation(fields: [vehicleId], references: [id])
-  liters      Float
-  cost        Float
-  pricePerLiter Float
-  odometer    Float
-  fuelDate    DateTime
-  createdAt   DateTime  @default(now())
-  createdBy   String
-}
-
-model Expense {
-  id          String    @id @default(cuid())
-  vehicleId   String?
-  vehicle     Vehicle?  @relation(fields: [vehicleId], references: [id])
-  tripId      String?
-  trip        Trip?     @relation(fields: [tripId], references: [id])
-  category    String
-  description String?
-  amount      Float
-  expenseDate DateTime
-  createdAt   DateTime  @default(now())
-  createdBy   String
-}
-
-// Audit and Notifications
-model AuditLog {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  action      String
-  resource    String
-  resourceId  String?
-  metadata    Json?
-  createdAt   DateTime  @default(now())
-}
-
-model Notification {
-  id          String    @id @default(cuid())
-  userId      String
-  type        String
-  message     String
-  metadata    Json?
-  read        Boolean   @default(false)
-  createdAt   DateTime  @default(now())
+model InvitationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  role      Role
+  invitedBy String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

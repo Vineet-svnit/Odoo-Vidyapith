@@ -7,40 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
-  passwordHash String
-  role         Role
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  invitedBy    String?
-  auditLogs    AuditLog[]
-  driver       Driver?
-  inviter      User?      @relation("UserInvites", fields: [invitedBy], references: [id])
-  invitees     User[]     @relation("UserInvites")
-}
-
-model Vehicle {
-  id              String           @id @default(cuid())
-  name            String
-  model           String
-  licensePlate    String           @unique
-  type            VehicleType
-  maxLoadCapacity Float
-  odometer        Float
-  status          VehicleStatus    @default(AVAILABLE)
-  acquisitionCost Float?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  expenses        Expense[]
-  fuelLogs        FuelLog[]
-  maintenanceLogs MaintenanceLog[]
-  trips           Trip[]
+model AuditLog {
+  id         String   @id
+  userId     String
+  action     String
+  resource   String
+  resourceId String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  User       User     @relation(fields: [userId], references: [id])
 }
 
 model Driver {
-  id              String       @id @default(cuid())
+  id              String       @id
   userId          String       @unique
   firstName       String
   lastName        String
@@ -50,13 +29,85 @@ model Driver {
   status          DriverStatus @default(ON_DUTY)
   safetyScore     Float?
   createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  user            User         @relation(fields: [userId], references: [id])
-  trips           Trip[]
+  updatedAt       DateTime
+  User            User         @relation(fields: [userId], references: [id])
+  Trip            Trip[]
+}
+
+model Expense {
+  id          String   @id
+  vehicleId   String?
+  tripId      String?
+  category    String
+  description String?
+  amount      Float
+  expenseDate DateTime
+  createdAt   DateTime @default(now())
+  createdBy   String
+  Trip        Trip?    @relation(fields: [tripId], references: [id])
+  Vehicle     Vehicle? @relation(fields: [vehicleId], references: [id])
+}
+
+model FuelLog {
+  id            String   @id
+  vehicleId     String
+  liters        Float
+  cost          Float
+  pricePerLiter Float
+  odometer      Float
+  fuelDate      DateTime
+  createdAt     DateTime @default(now())
+  createdBy     String
+  Vehicle       Vehicle  @relation(fields: [vehicleId], references: [id])
+}
+
+model InvitationToken {
+  id        String   @id
+  token     String   @unique
+  email     String
+  role      Role
+  invitedBy String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model MaintenanceLog {
+  id          String    @id
+  vehicleId   String
+  serviceType String
+  description String?
+  cost        Float
+  odometer    Float
+  serviceDate DateTime
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  createdBy   String
+  Vehicle     Vehicle   @relation(fields: [vehicleId], references: [id])
+}
+
+model Notification {
+  id        String   @id
+  userId    String
+  type      String
+  message   String
+  metadata  Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 model Trip {
-  id               String     @id @default(cuid())
+  id               String     @id
   vehicleId        String
   driverId         String
   cargoWeight      Float
@@ -72,99 +123,55 @@ model Trip {
   issueReported    Boolean    @default(false)
   issueDescription String?
   createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  updatedAt        DateTime
   createdBy        String
-  expenses         Expense[]
-  driver           Driver     @relation(fields: [driverId], references: [id])
-  vehicle          Vehicle    @relation(fields: [vehicleId], references: [id])
+  Expense          Expense[]
+  Driver           Driver     @relation(fields: [driverId], references: [id])
+  Vehicle          Vehicle    @relation(fields: [vehicleId], references: [id])
 }
 
-model MaintenanceLog {
-  id          String    @id @default(cuid())
-  vehicleId   String
-  serviceType String
-  description String?
-  cost        Float
-  odometer    Float
-  serviceDate DateTime
-  completedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  createdBy   String
-  vehicle     Vehicle   @relation(fields: [vehicleId], references: [id])
+model User {
+  id           String     @id
+  email        String     @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime
+  invitedBy    String?
+  AuditLog     AuditLog[]
+  Driver       Driver?
+  User         User?      @relation("UserToUser", fields: [invitedBy], references: [id])
+  other_User   User[]     @relation("UserToUser")
 }
 
-model FuelLog {
-  id            String   @id @default(cuid())
-  vehicleId     String
-  liters        Float
-  cost          Float
-  pricePerLiter Float
-  odometer      Float
-  fuelDate      DateTime
-  createdAt     DateTime @default(now())
-  createdBy     String
-  vehicle       Vehicle  @relation(fields: [vehicleId], references: [id])
-}
-
-model Expense {
-  id          String   @id @default(cuid())
-  vehicleId   String?
-  tripId      String?
-  category    String
-  description String?
-  amount      Float
-  expenseDate DateTime
-  createdAt   DateTime @default(now())
-  createdBy   String
-  trip        Trip?    @relation(fields: [tripId], references: [id])
-  vehicle     Vehicle? @relation(fields: [vehicleId], references: [id])
-}
-
-model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String
-  action     String
-  resource   String
-  resourceId String?
-  metadata   Json?
-  createdAt  DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id])
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String
-  message   String
-  metadata  Json?
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-enum Role {
-  FLEET_MANAGER
-  DISPATCHER
-  DRIVER
-}
-
-enum VehicleType {
-  TRUCK
-  VAN
-  BIKE
-}
-
-enum VehicleStatus {
-  AVAILABLE
-  ON_TRIP
-  IN_SHOP
-  OUT_OF_SERVICE
+model Vehicle {
+  id              String           @id
+  name            String
+  model           String
+  licensePlate    String           @unique
+  type            VehicleType
+  maxLoadCapacity Float
+  odometer        Float
+  status          VehicleStatus    @default(AVAILABLE)
+  acquisitionCost Float?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime
+  Expense         Expense[]
+  FuelLog         FuelLog[]
+  MaintenanceLog  MaintenanceLog[]
+  Trip            Trip[]
 }
 
 enum DriverStatus {
   ON_DUTY
   OFF_DUTY
   SUSPENDED
+}
+
+enum Role {
+  FLEET_MANAGER
+  DISPATCHER
+  DRIVER
 }
 
 enum TripStatus {
@@ -176,22 +183,15 @@ enum TripStatus {
   ISSUE_REPORTED
 }
 
-model PasswordResetToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  userId    String
-  expiresAt DateTime
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now())
+enum VehicleStatus {
+  AVAILABLE
+  ON_TRIP
+  IN_SHOP
+  OUT_OF_SERVICE
 }
 
-model InvitationToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  email     String
-  role      Role
-  invitedBy String
-  expiresAt DateTime
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now())
+enum VehicleType {
+  TRUCK
+  VAN
+  BIKE
 }

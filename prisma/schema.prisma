@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User and Authentication
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  role          Role
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  invitedBy     String?
+  inviter       User?     @relation("UserInvites", fields: [invitedBy], references: [id])
+  invitees      User[]    @relation("UserInvites")
+  driver        Driver?
+  auditLogs     AuditLog[]
+}
+
+enum Role {
+  FLEET_MANAGER
+  DISPATCHER
+  DRIVER
+}
+
+// Vehicle Management
+model Vehicle {
+  id                String          @id @default(cuid())
+  name              String
+  model             String
+  licensePlate      String          @unique
+  type              VehicleType
+  maxLoadCapacity   Float
+  odometer          Float
+  status            VehicleStatus   @default(AVAILABLE)
+  acquisitionCost   Float?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  trips             Trip[]
+  maintenanceLogs   MaintenanceLog[]
+  fuelLogs          FuelLog[]
+  expenses          Expense[]
+}
+
+enum VehicleType {
+  TRUCK
+  VAN
+  BIKE
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  ON_TRIP
+  IN_SHOP
+  OUT_OF_SERVICE
+}
+
+// Driver Management
+model Driver {
+  id                String        @id @default(cuid())
+  userId            String        @unique
+  user              User          @relation(fields: [userId], references: [id])
+  firstName         String
+  lastName          String
+  licenseNumber     String        @unique
+  licenseCategory   String
+  licenseExpiry     DateTime
+  status            DriverStatus  @default(ON_DUTY)
+  safetyScore       Float?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  trips             Trip[]
+}
+
+enum DriverStatus {
+  ON_DUTY
+  OFF_DUTY
+  SUSPENDED
+}
+
+// Trip Management
+model Trip {
+  id                String      @id @default(cuid())
+  vehicleId         String
+  vehicle           Vehicle     @relation(fields: [vehicleId], references: [id])
+  driverId          String
+  driver            Driver      @relation(fields: [driverId], references: [id])
+  cargoWeight       Float
+  cargoDescription  String?
+  origin            String
+  destination       String
+  status            TripStatus  @default(DRAFT)
+  startOdometer     Float?
+  endOdometer       Float?
+  scheduledStart    DateTime?
+  actualStart       DateTime?
+  actualEnd         DateTime?
+  issueReported     Boolean     @default(false)
+  issueDescription  String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  createdBy         String
+  expenses          Expense[]
+}
+
+enum TripStatus {
+  DRAFT
+  DISPATCHED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  ISSUE_REPORTED
+}
+
+// Maintenance Management
+model MaintenanceLog {
+  id            String    @id @default(cuid())
+  vehicleId     String
+  vehicle       Vehicle   @relation(fields: [vehicleId], references: [id])
+  serviceType   String
+  description   String?
+  cost          Float
+  odometer      Float
+  serviceDate   DateTime
+  completedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  createdBy     String
+}
+
+// Financial Management
+model FuelLog {
+  id          String    @id @default(cuid())
+  vehicleId   String
+  vehicle     Vehicle   @relation(fields: [vehicleId], references: [id])
+  liters      Float
+  cost        Float
+  pricePerLiter Float
+  odometer    Float
+  fuelDate    DateTime
+  createdAt   DateTime  @default(now())
+  createdBy   String
+}
+
+model Expense {
+  id          String    @id @default(cuid())
+  vehicleId   String?
+  vehicle     Vehicle?  @relation(fields: [vehicleId], references: [id])
+  tripId      String?
+  trip        Trip?     @relation(fields: [tripId], references: [id])
+  category    String
+  description String?
+  amount      Float
+  expenseDate DateTime
+  createdAt   DateTime  @default(now())
+  createdBy   String
+}
+
+// Audit and Notifications
+model AuditLog {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  action      String
+  resource    String
+  resourceId  String?
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  type        String
+  message     String
+  metadata    Json?
+  read        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}

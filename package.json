@@ -1,0 +1,37 @@
+{
+  "name": "fleetflow",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "db:setup": "node scripts/setup-db.js",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "verify": "node scripts/verify-setup.js"
+  },
+  "dependencies": {
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "next-auth": "^4.24.0",
+    "@prisma/client": "^5.19.0",
+    "zod": "^3.23.0",
+    "bcryptjs": "^2.4.3",
+    "nodemailer": "^6.9.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.0",
+    "prisma": "^5.19.0",
+    "vitest": "^2.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "fast-check": "^3.22.0",
+    "@types/bcryptjs": "^2.4.6"
+  }
+}

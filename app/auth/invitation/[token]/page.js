@@ -99,7 +99,7 @@ export default function InvitationPage({ params }) {
   return (
     <div style={{ maxWidth: '500px', margin: '2rem auto', padding: '2rem' }}>
       <h1>Accept Invitation</h1>
-      <p>You've been invited to join FleetFlow as a {invitation?.role?.replace('_', ' ')}.</p>
+      <p>You&apos;ve been invited to join FleetFlow as a {invitation?.role?.replace('_', ' ')}.</p>
       
       <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
         {invitation?.role === 'DRIVER' && (

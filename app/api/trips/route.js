@@ -13,6 +13,7 @@ import {
   createTrip,
   getAllTrips
 } from '@/lib/trip-service'
+import { auditLog, AUDIT_ACTIONS, createTripAuditMetadata } from '@/lib/audit-helpers'
 
 /**
  * GET /api/trips
@@ -123,6 +124,15 @@ export async function POST(req) {
 
     // Create trip
     const trip = await createTrip(body, session.user.id)
+
+    // Audit log the trip creation
+    await auditLog(
+      session.user.id,
+      AUDIT_ACTIONS.CREATE_TRIP,
+      'trip',
+      trip.id,
+      createTripAuditMetadata(trip)
+    )
 
     return NextResponse.json(
       {

@@ -10,9 +10,9 @@ import { authOptions } from '@/lib/auth'
 import { hasPermission } from '@/lib/rbac'
 import {
   getTripById,
-  validateTripCreation
+  emergencyVehicleReassignment,
+  emergencyDriverReassignment
 } from '@/lib/trip-service'
-import prisma from '@/lib/prisma'
 
 /**
  * PATCH /api/trips/:id/reassign
@@ -77,150 +77,26 @@ export async function PATCH(req, { params }) {
       )
     }
 
-    // Vehicle reassignment rules: can only reassign if trip hasn't started (not IN_PROGRESS)
-    if (vehicleId && currentTrip.status === 'IN_PROGRESS') {
-      return NextResponse.json(
-        {
-          status: 422,
-          type: 'BUSINESS_RULE_VIOLATION',
-          message: 'Cannot reassign vehicle for a trip that is already in progress'
-        },
-        { status: 422 }
-      )
+    // Perform emergency reassignment
+    let result
+    if (vehicleId && driverId) {
+      // Both vehicle and driver reassignment
+      const vehicleResult = await emergencyVehicleReassignment(tripId, vehicleId, reason, session.user.id)
+      result = await emergencyDriverReassignment(tripId, driverId, reason, session.user.id)
+      result.vehicleAuditLog = vehicleResult.auditLog
+    } else if (vehicleId) {
+      // Vehicle reassignment only
+      result = await emergencyVehicleReassignment(tripId, vehicleId, reason, session.user.id)
+    } else {
+      // Driver reassignment only
+      result = await emergencyDriverReassignment(tripId, driverId, reason, session.user.id)
     }
-
-    // Prepare new trip data for validation
-    const newTripData = {
-      vehicleId: vehicleId || currentTrip.vehicleId,
-      driverId: driverId || currentTrip.driverId,
-      cargoWeight: currentTrip.cargoWeight
-    }
-
-    // Validate the new assignment
-    const validation = await validateTripCreation(newTripData)
-    if (!validation.valid) {
-      return NextResponse.json(
-        {
-          status: 422,
-          type: 'BUSINESS_RULE_VIOLATION',
-          message: 'Reassignment validation failed',
-          errors: validation.errors
-        },
-        { status: 422 }
-      )
-    }
-
-    // Perform reassignment in a transaction
-    const trip = await prisma.$transaction(async (tx) => {
-      // Store original assignment for audit
-      const originalVehicleId = currentTrip.vehicleId
-      const originalDriverId = currentTrip.driverId
-
-      // Update trip with new assignment
-      const updatedTrip = await tx.trip.update({
-        where: { id: tripId },
-        data: {
-          vehicleId: vehicleId || currentTrip.vehicleId,
-          driverId: driverId || currentTrip.driverId
-        },
-        include: {
-          vehicle: true,
-          driver: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  email: true,
-                  role: true
-                }
-              }
-            }
-          }
-        }
-      })
-
-      // If vehicle was reassigned and trip is dispatched, update vehicle statuses
-      if (vehicleId && currentTrip.status === 'DISPATCHED') {
-        // Return old vehicle to AVAILABLE
-        await tx.vehicle.update({
-          where: { id: originalVehicleId },
-          data: { status: 'AVAILABLE' }
-        })
-
-        // Set new vehicle to ON_TRIP
-        await tx.vehicle.update({
-          where: { id: vehicleId },
-          data: { status: 'ON_TRIP' }
-        })
-      }
-
-      // Create audit log entry
-      await tx.auditLog.create({
-        data: {
-          userId: session.user.id,
-          action: 'TRIP_REASSIGNMENT',
-          resource: 'trip',
-          resourceId: tripId,
-          metadata: {
-            originalVehicleId,
-            originalDriverId,
-            newVehicleId: vehicleId || originalVehicleId,
-            newDriverId: driverId || originalDriverId,
-            reason,
-            timestamp: new Date().toISOString()
-          }
-        }
-      })
-
-      // Create notifications for affected drivers
-      if (driverId) {
-        // Notify original driver
-        const originalDriver = await tx.driver.findUnique({
-          where: { id: originalDriverId },
-          include: { user: true }
-        })
-
-        if (originalDriver) {
-          await tx.notification.create({
-            data: {
-              userId: originalDriver.userId,
-              type: 'TRIP_REASSIGNMENT',
-              message: `Trip ${tripId} has been reassigned to another driver. Reason: ${reason}`,
-              metadata: {
-                tripId,
-                reason
-              }
-            }
-          })
-        }
-
-        // Notify new driver
-        const newDriver = await tx.driver.findUnique({
-          where: { id: driverId },
-          include: { user: true }
-        })
-
-        if (newDriver) {
-          await tx.notification.create({
-            data: {
-              userId: newDriver.userId,
-              type: 'TRIP_ASSIGNMENT',
-              message: `You have been assigned to trip ${tripId}. Reason: ${reason}`,
-              metadata: {
-                tripId,
-                reason
-              }
-            }
-          })
-        }
-      }
-
-      return updatedTrip
-    })
 
     return NextResponse.json({
       success: true,
-      data: trip,
+      data: result.trip,
+      auditLog: result.auditLog,
+      notifications: result.notifications,
       message: 'Trip reassigned successfully'
     })
   } catch (error) {

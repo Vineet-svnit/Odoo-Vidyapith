@@ -9,6 +9,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { hasPermission } from '@/lib/rbac'
 import { updateVehicleStatus } from '@/lib/vehicle-service'
+import { auditLog, AUDIT_ACTIONS, createVehicleAuditMetadata } from '@/lib/audit-helpers'
 
 /**
  * PATCH /api/vehicles/:id/status
@@ -59,6 +60,15 @@ export async function PATCH(req, { params }) {
 
     // Update vehicle status
     const vehicle = await updateVehicleStatus(params.id, status)
+
+    // Audit log the status update
+    await auditLog(
+      session.user.id,
+      AUDIT_ACTIONS.UPDATE_VEHICLE_STATUS,
+      'vehicle',
+      vehicle.id,
+      createVehicleAuditMetadata(vehicle)
+    )
 
     return NextResponse.json({
       success: true,

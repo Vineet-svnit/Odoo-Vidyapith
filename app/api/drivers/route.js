@@ -13,6 +13,7 @@ import {
   createDriver,
   getAllDrivers
 } from '@/lib/driver-service'
+import { auditLog, AUDIT_ACTIONS, createDriverAuditMetadata } from '@/lib/audit-helpers'
 
 /**
  * GET /api/drivers
@@ -111,6 +112,15 @@ export async function POST(req) {
 
     // Create driver
     const driver = await createDriver(body)
+
+    // Audit log the driver creation
+    await auditLog(
+      session.user.id,
+      AUDIT_ACTIONS.CREATE_DRIVER,
+      'driver',
+      driver.id,
+      createDriverAuditMetadata(driver)
+    )
 
     return NextResponse.json(
       {

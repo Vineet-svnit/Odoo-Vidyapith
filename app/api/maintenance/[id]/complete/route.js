@@ -9,6 +9,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { hasPermission } from '@/lib/rbac'
 import { completeMaintenanceLog } from '@/lib/maintenance-service'
+import { auditLog, AUDIT_ACTIONS } from '@/lib/audit-helpers'
 
 /**
  * PATCH /api/maintenance/:id/complete
@@ -47,6 +48,20 @@ export async function PATCH(req, { params }) {
 
     // Complete maintenance log
     const maintenanceLog = await completeMaintenanceLog(id)
+
+    // Audit log the maintenance completion
+    await auditLog(
+      session.user.id,
+      AUDIT_ACTIONS.COMPLETE_MAINTENANCE,
+      'maintenance',
+      maintenanceLog.id,
+      {
+        vehicleId: maintenanceLog.vehicleId,
+        serviceType: maintenanceLog.serviceType,
+        completedAt: maintenanceLog.completedAt,
+        timestamp: new Date().toISOString()
+      }
+    )
 
     return NextResponse.json({
       success: true,

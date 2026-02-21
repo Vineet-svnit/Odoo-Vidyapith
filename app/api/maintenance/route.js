@@ -13,6 +13,7 @@ import {
   createMaintenanceLog,
   getAllMaintenanceLogs
 } from '@/lib/maintenance-service'
+import { auditLog, AUDIT_ACTIONS } from '@/lib/audit-helpers'
 
 /**
  * GET /api/maintenance
@@ -115,6 +116,20 @@ export async function POST(req) {
 
     // Create maintenance log
     const maintenanceLog = await createMaintenanceLog(body, session.user.id)
+
+    // Audit log the maintenance creation
+    await auditLog(
+      session.user.id,
+      AUDIT_ACTIONS.CREATE_MAINTENANCE,
+      'maintenance',
+      maintenanceLog.id,
+      {
+        vehicleId: maintenanceLog.vehicleId,
+        serviceType: maintenanceLog.serviceType,
+        cost: maintenanceLog.cost,
+        timestamp: new Date().toISOString()
+      }
+    )
 
     return NextResponse.json(
       {

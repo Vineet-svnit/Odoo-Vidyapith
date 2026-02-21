@@ -9,6 +9,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { hasPermission } from '@/lib/rbac'
 import { updateDriverStatus } from '@/lib/driver-service'
+import { auditLog, AUDIT_ACTIONS, createDriverAuditMetadata } from '@/lib/audit-helpers'
 
 /**
  * PATCH /api/drivers/:id/status
@@ -61,6 +62,16 @@ export async function PATCH(req, { params }) {
 
     // Update driver status
     const driver = await updateDriverStatus(driverId, status)
+
+    // Audit log the status update (especially important for suspensions)
+    const action = status === 'SUSPENDED' ? AUDIT_ACTIONS.SUSPEND_DRIVER : AUDIT_ACTIONS.UPDATE_DRIVER_STATUS
+    await auditLog(
+      session.user.id,
+      action,
+      'driver',
+      driver.id,
+      createDriverAuditMetadata(driver)
+    )
 
     return NextResponse.json({
       success: true,

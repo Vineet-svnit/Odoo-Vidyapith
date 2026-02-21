@@ -15,6 +15,7 @@ import {
   updateVehicle,
   retireVehicle
 } from '@/lib/vehicle-service'
+import { auditLog, AUDIT_ACTIONS, createVehicleAuditMetadata } from '@/lib/audit-helpers'
 
 /**
  * GET /api/vehicles/:id
@@ -128,6 +129,15 @@ export async function PUT(req, { params }) {
     // Update vehicle
     const vehicle = await updateVehicle(params.id, body)
 
+    // Audit log the vehicle update
+    await auditLog(
+      session.user.id,
+      AUDIT_ACTIONS.UPDATE_VEHICLE,
+      'vehicle',
+      vehicle.id,
+      createVehicleAuditMetadata(vehicle)
+    )
+
     return NextResponse.json({
       success: true,
       data: vehicle,
@@ -188,6 +198,7 @@ export async function PUT(req, { params }) {
 /**
  * DELETE /api/vehicles/:id
  * Soft delete a vehicle (mark as OUT_OF_SERVICE)
+ * Historical trip and expense records are preserved
  * Accessible by: FLEET_MANAGER only
  */
 export async function DELETE(req, { params }) {
@@ -220,10 +231,19 @@ export async function DELETE(req, { params }) {
     // Retire vehicle (soft delete by marking as OUT_OF_SERVICE)
     const vehicle = await retireVehicle(params.id)
 
+    // Audit log the vehicle deletion/retirement
+    await auditLog(
+      session.user.id,
+      AUDIT_ACTIONS.DELETE_VEHICLE,
+      'vehicle',
+      vehicle.id,
+      createVehicleAuditMetadata(vehicle)
+    )
+
     return NextResponse.json({
       success: true,
       data: vehicle,
-      message: 'Vehicle retired successfully'
+      message: 'Vehicle retired successfully. Historical trip and expense records are preserved.'
     })
   } catch (error) {
     console.error('DELETE /api/vehicles/:id error:', error)

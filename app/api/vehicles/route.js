@@ -13,6 +13,7 @@ import {
   createVehicle,
   getAllVehicles
 } from '@/lib/vehicle-service'
+import { auditLog, AUDIT_ACTIONS, createVehicleAuditMetadata } from '@/lib/audit-helpers'
 
 /**
  * GET /api/vehicles
@@ -112,6 +113,15 @@ export async function POST(req) {
 
     // Create vehicle
     const vehicle = await createVehicle(body)
+
+    // Audit log the vehicle creation
+    await auditLog(
+      session.user.id,
+      AUDIT_ACTIONS.CREATE_VEHICLE,
+      'vehicle',
+      vehicle.id,
+      createVehicleAuditMetadata(vehicle)
+    )
 
     return NextResponse.json(
       {

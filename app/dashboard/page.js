@@ -12,7 +12,17 @@ export default function DashboardPage() {
     if (status === 'unauthenticated') {
       router.push('/auth/signin')
     }
-  }, [status, router])
+    if (status === 'authenticated' && session?.user?.role) {
+      // Redirect to role-specific dashboard
+      if (session.user.role === 'FLEET_MANAGER') {
+        router.push('/fleet-manager')
+      } else if (session.user.role === 'DISPATCHER') {
+        router.push('/dispatcher')
+      } else if (session.user.role === 'DRIVER') {
+        router.push('/driver')
+      }
+    }
+  }, [status, session, router])
 
   if (status === 'loading') {
     return <div style={{ padding: '2rem' }}>Loading...</div>

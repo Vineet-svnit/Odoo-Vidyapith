@@ -17,3 +17,568 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Responsive Design Utilities */
+
+/* Mobile-first responsive breakpoints */
+/* Mobile: < 640px */
+/* Tablet: 640px - 1024px */
+/* Desktop: > 1024px */
+
+/* Responsive container padding */
+@media (max-width: 640px) {
+  /* Mobile styles */
+  [style*="padding: 2rem"] {
+    padding: 1rem !important;
+  }
+  
+  [style*="padding: 1rem 2rem"] {
+    padding: 0.75rem 1rem !important;
+  }
+  
+  [style*="padding: 0 2rem 2rem"] {
+    padding: 0 1rem 1rem !important;
+  }
+  
+  /* Reduce font sizes on mobile */
+  [style*="fontSize: '1.5rem'"] {
+    font-size: 1.25rem !important;
+  }
+  
+  [style*="fontSize: '1.25rem'"] {
+    font-size: 1.125rem !important;
+  }
+  
+  /* Make buttons full width on mobile */
+  button[style*="padding: '0.5rem 1.5rem'"],
+  button[style*="padding: '0.5rem 1rem'"],
+  button[style*="padding: '0.75rem 1.5rem'"] {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Stack flex containers on mobile */
+  [style*="display: 'flex'"][style*="gap"] {
+    flex-direction: column !important;
+  }
+  
+  /* Make grids single column on mobile */
+  [style*="gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr)'"],
+  [style*="gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr)'"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Two-column grids become single column */
+  [style*="gridTemplateColumns: '2fr 1fr'"],
+  [style*="gridTemplateColumns: '1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Hide back button text on mobile, show only arrow */
+  button[style*="fontSize: '1.25rem'"] + span {
+    font-size: 1.125rem !important;
+  }
+  
+  /* Make tables scrollable on mobile */
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Reduce table padding on mobile */
+  table th,
+  table td {
+    padding: 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+  
+  /* Stack form buttons vertically on mobile */
+  form [style*="display: 'flex'"][style*="gap: '1rem'"] {
+    flex-direction: column !important;
+  }
+  
+  form [style*="display: 'flex'"][style*="gap: '1rem'"] button {
+    width: 100% !important;
+  }
+  
+  /* Make modals full screen on mobile */
+  [style*="position: 'fixed'"][style*="inset: '0'"] > div {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Adjust max widths for mobile */
+  [style*="maxWidth: '1400px'"],
+  [style*="maxWidth: '1200px'"],
+  [style*="maxWidth: '400px'"] {
+    max-width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Make input fields full width */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    width: 100% !important;
+  }
+  
+  /* Adjust header spacing on mobile */
+  [style*="display: 'flex'"][style*="justifyContent: 'space-between'"][style*="alignItems: 'center'"] {
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* Hide email in header on mobile */
+  [style*="fontSize: '0.875rem'"][style*="color: '#666'"] {
+    display: none !important;
+  }
+  
+  /* Make KPI cards stack on mobile */
+  [style*="display: 'grid'"][style*="minmax(250px"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Reduce card padding on mobile */
+  [style*="padding: '1.5rem'"] {
+    padding: 1rem !important;
+  }
+  
+  /* Make sidebar stack below main content on mobile */
+  [style*="gridTemplateColumns: '2fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Adjust trip card layout on mobile */
+  [style*="display: 'grid'"][style*="gridTemplateColumns: '1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Tablet styles */
+  
+  /* Adjust container padding for tablets */
+  [style*="padding: 2rem"] {
+    padding: 1.5rem !important;
+  }
+  
+  [style*="padding: 0 2rem 2rem"] {
+    padding: 0 1.5rem 1.5rem !important;
+  }
+  
+  /* Adjust grid columns for tablets */
+  [style*="gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr)'"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  /* Two-column layout for forms on tablets */
+  [style*="gridTemplateColumns: '2fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Make tables scrollable on tablets if needed */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Adjust max widths for tablets */
+  [style*="maxWidth: '1400px'"],
+  [style*="maxWidth: '1200px'"] {
+    max-width: 100% !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+  
+  /* Stack action buttons on smaller tablets */
+  [style*="display: 'flex'"][style*="flexWrap: 'wrap'"] button {
+    flex: 1 1 auto;
+    min-width: 150px;
+  }
+}
+
+/* Responsive table improvements */
+@media (max-width: 640px) {
+  /* Alternative table display for mobile */
+  table.responsive-table {
+    border: 0;
+  }
+  
+  table.responsive-table thead {
+    display: none;
+  }
+  
+  table.responsive-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    background-color: white;
+  }
+  
+  table.responsive-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0 !important;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  table.responsive-table td:last-child {
+    border-bottom: 0;
+  }
+  
+  table.responsive-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    margin-right: 1rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch targets on touch devices */
+  button,
+  a,
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  *:hover {
+    background-color: inherit !important;
+  }
+  
+  /* Add active states for touch feedback */
+  button:active,
+  a:active {
+    opacity: 0.7;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 1024px) and (orientation: landscape) {
+  /* Reduce vertical padding in landscape mode */
+  [style*="padding: 2rem"],
+  [style*="padding: 1.5rem"] {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+  
+  /* Adjust header height in landscape */
+  [style*="padding: '1rem 2rem'"] {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  /* Hide navigation and interactive elements */
+  button,
+  [style*="cursor: 'pointer'"] {
+    display: none !important;
+  }
+  
+  /* Expand containers for print */
+  [style*="maxWidth"] {
+    max-width: 100% !important;
+  }
+  
+  /* Remove backgrounds for print */
+  [style*="backgroundColor"] {
+    background-color: white !important;
+  }
+  
+  /* Ensure tables fit on page */
+  table {
+    page-break-inside: avoid;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  button,
+  input,
+  select,
+  textarea {
+    border: 2px solid currentColor !important;
+  }
+}
+
+/* Dark mode support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  /* Placeholder for dark mode styles */
+  /* Can be implemented when dark mode is added to the design */
+}
+
+/* Component-specific responsive styles */
+
+/* KPI Card responsive adjustments */
+@media (max-width: 640px) {
+  .kpi-card {
+    min-height: 120px !important;
+    padding: 1rem !important;
+  }
+  
+  .kpi-value {
+    font-size: 1.5rem !important;
+  }
+  
+  .kpi-icon {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Filter Bar responsive adjustments */
+@media (max-width: 640px) {
+  .filter-bar {
+    padding: 0.75rem !important;
+  }
+  
+  .filter-bar > div[style*="flex: '1 1 150px'"] {
+    flex: 1 1 100% !important;
+    min-width: 100% !important;
+  }
+  
+  .filter-bar button {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+}
+
+/* Responsive utility classes */
+.responsive-hide-mobile {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .responsive-hide-mobile {
+    display: none !important;
+  }
+}
+
+.responsive-hide-desktop {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .responsive-hide-desktop {
+    display: block !important;
+  }
+}
+
+/* Responsive container */
+.responsive-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+@media (max-width: 640px) {
+  .responsive-container {
+    padding: 0 1rem !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .responsive-container {
+    padding: 0 1.5rem !important;
+  }
+}
+
+/* Responsive grid */
+.responsive-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.responsive-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.responsive-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.responsive-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 640px) {
+  .responsive-grid-2,
+  .responsive-grid-3,
+  .responsive-grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .responsive-grid-3,
+  .responsive-grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Responsive flex */
+.responsive-flex {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .responsive-flex {
+    flex-direction: column !important;
+  }
+}
+
+/* Responsive text sizes */
+.text-responsive-xl {
+  font-size: 1.5rem;
+}
+
+.text-responsive-lg {
+  font-size: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .text-responsive-xl {
+    font-size: 1.25rem !important;
+  }
+  
+  .text-responsive-lg {
+    font-size: 1.125rem !important;
+  }
+}
+
+/* Responsive spacing */
+.spacing-responsive {
+  padding: 2rem;
+}
+
+@media (max-width: 640px) {
+  .spacing-responsive {
+    padding: 1rem !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .spacing-responsive {
+    padding: 1.5rem !important;
+  }
+}
+
+/* Responsive button group */
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .button-group {
+    flex-direction: column !important;
+  }
+  
+  .button-group button {
+    width: 100% !important;
+  }
+}
+
+/* Responsive form layout */
+.form-responsive {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 641px) {
+  .form-responsive-2col {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Responsive modal */
+@media (max-width: 640px) {
+  [role="dialog"],
+  [style*="position: 'fixed'"] {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* Responsive overflow handling */
+.overflow-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+  .overflow-responsive table {
+    min-width: 600px;
+  }
+}
+
+/* Responsive card */
+.card-responsive {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .card-responsive {
+    padding: 1rem !important;
+    border-radius: 4px !important;
+  }
+}
+
+/* Responsive header */
+.header-responsive {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .header-responsive {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  
+  .header-responsive > * {
+    width: 100% !important;
+  }
+}

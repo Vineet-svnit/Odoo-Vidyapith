@@ -2,20 +2,23 @@
 
 export default function FilterBar({ filters, onFilterChange }) {
   return (
-    <div style={{
-      backgroundColor: 'white',
-      border: '1px solid #e0e0e0',
-      borderRadius: '8px',
-      padding: '1rem',
-      marginBottom: '1.5rem',
-      display: 'flex',
-      gap: '1rem',
-      flexWrap: 'wrap',
-      alignItems: 'center'
-    }}>
-      <div style={{ fontWeight: '500', color: '#333' }}>Filters:</div>
+    <div 
+      className="filter-bar"
+      style={{
+        backgroundColor: 'white',
+        border: '1px solid #e0e0e0',
+        borderRadius: '8px',
+        padding: '1rem',
+        marginBottom: '1.5rem',
+        display: 'flex',
+        gap: '1rem',
+        flexWrap: 'wrap',
+        alignItems: 'flex-end'
+      }}
+    >
+      <div style={{ fontWeight: '500', color: '#333', width: '100%', marginBottom: '0.5rem' }}>Filters:</div>
       
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: '1 1 150px', minWidth: '150px' }}>
         <label style={{ fontSize: '0.75rem', color: '#666' }}>Vehicle Type</label>
         <select
           value={filters.vehicleType || ''}
@@ -25,7 +28,7 @@ export default function FilterBar({ filters, onFilterChange }) {
             border: '1px solid #ccc',
             borderRadius: '4px',
             fontSize: '0.875rem',
-            minWidth: '150px'
+            width: '100%'
           }}
         >
           <option value="">All Types</option>
@@ -35,7 +38,7 @@ export default function FilterBar({ filters, onFilterChange }) {
         </select>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: '1 1 150px', minWidth: '150px' }}>
         <label style={{ fontSize: '0.75rem', color: '#666' }}>Status</label>
         <select
           value={filters.status || ''}
@@ -45,7 +48,7 @@ export default function FilterBar({ filters, onFilterChange }) {
             border: '1px solid #ccc',
             borderRadius: '4px',
             fontSize: '0.875rem',
-            minWidth: '150px'
+            width: '100%'
           }}
         >
           <option value="">All Statuses</option>
@@ -56,7 +59,7 @@ export default function FilterBar({ filters, onFilterChange }) {
         </select>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: '1 1 150px', minWidth: '150px' }}>
         <label style={{ fontSize: '0.75rem', color: '#666' }}>Region</label>
         <input
           type="text"
@@ -68,7 +71,7 @@ export default function FilterBar({ filters, onFilterChange }) {
             border: '1px solid #ccc',
             borderRadius: '4px',
             fontSize: '0.875rem',
-            minWidth: '150px'
+            width: '100%'
           }}
         />
       </div>
@@ -83,7 +86,8 @@ export default function FilterBar({ filters, onFilterChange }) {
             borderRadius: '4px',
             cursor: 'pointer',
             fontSize: '0.875rem',
-            marginLeft: 'auto'
+            flex: '0 1 auto',
+            whiteSpace: 'nowrap'
           }}
         >
           Clear Filters

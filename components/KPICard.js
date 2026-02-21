@@ -11,18 +11,21 @@ export default function KPICard({ title, value, subtitle, icon, color = 'blue' }
   const colors = colorClasses[color] || colorClasses.blue
 
   return (
-    <div style={{
-      backgroundColor: 'white',
-      border: `2px solid ${colors.border}`,
-      borderRadius: '8px',
-      padding: '1.5rem',
-      minHeight: '140px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
+    <div 
+      className="kpi-card"
+      style={{
+        backgroundColor: 'white',
+        border: `2px solid ${colors.border}`,
+        borderRadius: '8px',
+        padding: '1.5rem',
+        minHeight: '140px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between'
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ 
             fontSize: '0.875rem', 
             color: '#666', 
@@ -31,26 +34,34 @@ export default function KPICard({ title, value, subtitle, icon, color = 'blue' }
           }}>
             {title}
           </div>
-          <div style={{ 
-            fontSize: '2rem', 
-            fontWeight: 'bold', 
-            color: colors.text,
-            lineHeight: '1'
-          }}>
+          <div 
+            className="kpi-value"
+            style={{ 
+              fontSize: '2rem', 
+              fontWeight: 'bold', 
+              color: colors.text,
+              lineHeight: '1',
+              wordBreak: 'break-word'
+            }}
+          >
             {value}
           </div>
         </div>
         {icon && (
-          <div style={{
-            width: '48px',
-            height: '48px',
-            backgroundColor: colors.bg,
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.5rem'
-          }}>
+          <div 
+            className="kpi-icon"
+            style={{
+              width: '48px',
+              height: '48px',
+              backgroundColor: colors.bg,
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.5rem',
+              flexShrink: 0
+            }}
+          >
             {icon}
           </div>
         )}
